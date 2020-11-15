@@ -1,6 +1,6 @@
 #include <avr/io.h>
-
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "serial.h"
 
@@ -10,10 +10,8 @@ void uart_init(void) {
 	UBRR0H = (unsigned char)(UBRR >> 8);
 	UBRR0L = (unsigned char)(UBRR);
 	UCSR0A = 0;
-	UCSR0B = (1 << TXEN0 | 1 << RXEN0);
-	UCSR0C = (1 << UCSZ01 | 1 << UCSZ00);
-
-	UCSR0B |= (1 << RXCIE0);
+	UCSR0B = (1 << TXEN0) | (1 << RXEN0);
+	UCSR0C |= (3 << UCSZ00);
 
 	stdout = &uart_stdout;
 }
@@ -32,4 +30,28 @@ char uart_getchar(void) {
 	while (!(UCSR0A & (1 << RXC0)))
 		;
 	return UDR0;
+}
+
+int extract_stearing(char *receive_buffer){
+	int i;
+	char temp[3];
+	for (i = 3; i <= 9; i++) {
+		if(receive_buffer[i] == ':'){
+			break;
+		}
+		temp[i] = receive_buffer[i];
+	}
+	return atoi(temp);
+}
+
+int extract_speed(char *receive_buffer){
+	int i;
+	char temp[3];
+	for (i = 0; i <= 3; i++) {
+		if(receive_buffer[i] == ','){
+			break;
+		}
+		temp[i] = receive_buffer[i];
+	}
+	return atoi(temp);
 }
