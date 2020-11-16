@@ -32,61 +32,26 @@ char uart_getchar(void) {
 	return UDR0;
 }
 
-/*int extract_stearing(char *receive_buffer){
-	int i;
-	char temp_array[3];
-	for (i = 0; i <= 3; i++) {
-		if(receive_buffer[i] == ','){
-			break;
-		}
-		temp_array[i] = receive_buffer[i];
-	}
-	if(isdigit(temp_array)){
-		return atoi(temp_array);
-	}
-	else{
-		return 127;
-	}
-}*/
-
-/*int extract_speed(char *receive_buffer){
-	int i;
-	char temp_array[3];
-	for (i = 0; i <= 3; i++) {
-		if(receive_buffer[i] == ','){
-			break;
-		}
-		temp_array[i] = receive_buffer[i];
-	}
-	if(isdigit(temp_array)){
-		return atoi(temp_array);
-	}
-	else{
-		return 127;
-	}
-
-}*/
-
-void process_joystick_data(char *receive_buffer, int *angle, int *strenght, int *state){
+void process_joystick_data(message_struct *message_data){
 	char temp_angle[3] = {0};
 	char temp_strenght[3] = {0};
 	char temp_state = 0;
 
 	for(int i = 0; i < 6; i++){
 		if(i <= 2){
-			char temp_angle[i];
+			char temp_angle[i] = *message_data.receive_buffer[i];
 		}
 		else if(i >= 2 && i <= 5){
-			char temp_strenght[i];
+			char temp_strenght[i] = *message_data.receive_buffer[i];
 		}
 		else if(i < 5){
-			char temp_state = 0;
+			char temp_state = *message_data.receive_buffer[i];
 		}
 	}
 
-	*angle = atoi(temp_angle);
-	*strenght = atoi(temp_strenght);
-	*state = atoi(temp_state);
+	*message_data.angle = atoi(temp_angle);
+	*message_data.strenght = atoi(temp_strenght);
+	*message_data.state = atoi(temp_state);
 
 	}
 }

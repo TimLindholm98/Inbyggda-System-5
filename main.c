@@ -52,7 +52,7 @@ void main (void) {
 				indexing++
 
 				if(indexing <= 7){
-					process_joystick_data(&receive_buffer,&angle, &strenght,&state);
+					process_joystick_data(&message_data);
 					//constrain_and_map_data(&angle,&strenght,&state,&speed,&stearing);
 					printf("%d%d%d",255,0,);
 					printf("%d%d%d",255,1,speed);

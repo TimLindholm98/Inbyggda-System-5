@@ -10,6 +10,6 @@ int uart_putchar(char chr, FILE *stream);
 
 char uart_getchar(void);
 
-void process_joystick_data(char *receive_buffer, int *angle, int *strenght, int *state);
+void process_joystick_data(message_struct *message_data);
 
 #endif
