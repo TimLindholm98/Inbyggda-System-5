@@ -22,38 +22,42 @@
 static volatile char uart_rx_command = 'T';
 volatile bool new_uart_data = false;
 
+static struct message_struct{
+	char receive_buffer[7] = {0};
+	int angle = 0;
+	uint8_t strenght = 0;
+	uint8_t state = 0;
+} message_data;
+
+
+static struct servo_struct{
+	uint8_t speed = 127;
+	uint8_t stearing = 127;
+} servo_values;
+
 // mac 98:D3:81:FD:68:2F
 
 void main (void) {
-	char receive_buffer[7] = {0};
-	int indexing = 0;
-	int speed = 0;
-	int stearing = 90;
-	bool end = false;
-	bool restart = false;
+
 	uart_init();
 	sei();
 	SWseriale_begin(); // Initialize INT1, Timer2, Pin 3 (Input, Pull-up) and Pin 4 (Output)
 
 	SWseriale_write("HI\r\n",2);
 
-    /* Replace with your application code */
     while (1){
 
 			if(SWseriale_available()){
 				uint8_t receive_buffer[indexing] = SWseriale_read();
 				indexing++
 
-				if(indexing == 8 || receive_buffer[indexing] == ':'){
-					speed = extract_speed(&receive_buffer);
-					stearing = extract_stearing(&receive_buffer);
-					printf("%d%d%d",255,0,stearing);
+				if(indexing <= 7){
+					process_joystick_data(&receive_buffer,&angle, &strenght,&state);
+					//constrain_and_map_data(&angle,&strenght,&state,&speed,&stearing);
+					printf("%d%d%d",255,0,);
 					printf("%d%d%d",255,1,speed);
 					indexing = 0;
 				}
-
-
-
 
 				/*if(isdigit(uart_rx_command)){
 					SWseriale_write(&uart_rx_command, 1);
