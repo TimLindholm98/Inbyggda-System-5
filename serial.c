@@ -18,7 +18,6 @@ void uart_init(void) {
 	UCSR0A = 0;
 	UCSR0B = (1 << TXEN0) | (1 << RXEN0);
 	UCSR0C |= (3 << UCSZ00);
-	//UCSR0B |= (1 << RXCIE0); // Enable the USART Recieve complete interrupt
 
 	stdout = &uart_stdout;
 }
@@ -39,6 +38,9 @@ char uart_getchar(void) {
 	return UDR0;
 }
 
+/*
+Break out the data we received from hc-05 and store it in our "servo_struct servo_values".
+*/
 void process_joystick_data(){
 	char temp_angle[4] = {0};
 	char temp_strenght[4] = {0};
@@ -53,38 +55,45 @@ void process_joystick_data(){
 
 }
 
+/*
+This function is for transforming the joystick data to apropriate data for the servo controller.
+uncomment if you have a esc with forward and reverse.
+*/
 void convert_processed_joystick_data(){
-	bool forward = false;
+	//bool forward = false;
 
 	if((servo_values.direction < 360) && (servo_values.direction > 179)){
-		servo_values.stearing_angle = map(servo_values.direction,180,359,0,255);			//The high number eqauls the right on the joystick
-		forward = false;
+		servo_values.stearing_angle = map(servo_values.direction,359,180,0,255);
+		//forward = false;
 	}
 
 	if((servo_values.direction < 179) && (servo_values.direction > 0)){
-		servo_values.stearing_angle = map(servo_values.direction,178,0,0,255);
-		forward = true;
+		servo_values.stearing_angle = map(servo_values.direction,0,178,0,255);
+		//forward = true;
 	}
 
-	if(forward){
+	servo_values.speed = map(servo_values.strenght,0,100,22,100);
+	/*if(forward){
 		servo_values.speed = map(servo_values.strenght,0,100,122,244);
 	}
 	else{
 		servo_values.speed = map(servo_values.strenght,0,100,122,0);
-	}
+	}*/
 }
 
+
+/*
+Send data to the servo controller using mini-ssc protocol:
+
+description:	transmitting, servo number byte, servo target byte
+in hex: 			0xFF, 0x00, 0x7F
+in decimal: 	255, 0, 127
+
+https://www.pololu.com/docs/0J40/5.c
+*/
 void Set_Target_Mini_SSC(uint8_t channel_address, uint8_t target){
 	putchar(0xFF);
 	putchar(channel_address);
 	putchar(target);
 
 }
-
-/*void constrain_and_remap_data(message_struct *servo_values, servo_struct *servo_values){
-	servo_values
-
-
-	servo_values.speed = map();
-	servo_values.stearing_angle();
-}*/
