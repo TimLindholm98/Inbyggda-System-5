@@ -7,7 +7,8 @@ SOURCES = \
 		  gpio.c \
 		  adc.c \
 		  timer.c \
-			SWseriale.c
+			SWseriale.c \
+			math_functions.c\
 
 
 PORT =/dev/ttyACM0# Arduinons serieport — kan vara ttyACM1, kolla dmesg!

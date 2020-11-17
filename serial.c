@@ -1,8 +1,14 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
+#include "main.h"
+#include "math_functions.h"
 #include "serial.h"
+
+
 
 static FILE uart_stdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 
@@ -12,6 +18,7 @@ void uart_init(void) {
 	UCSR0A = 0;
 	UCSR0B = (1 << TXEN0) | (1 << RXEN0);
 	UCSR0C |= (3 << UCSZ00);
+	//UCSR0B |= (1 << RXCIE0); // Enable the USART Recieve complete interrupt
 
 	stdout = &uart_stdout;
 }
@@ -32,26 +39,52 @@ char uart_getchar(void) {
 	return UDR0;
 }
 
-void process_joystick_data(message_struct *message_data){
-	char temp_angle[3] = {0};
-	char temp_strenght[3] = {0};
-	char temp_state = 0;
+void process_joystick_data(){
+	char temp_angle[4] = {0};
+	char temp_strenght[4] = {0};
 
-	for(int i = 0; i < 6; i++){
-		if(i <= 2){
-			char temp_angle[i] = *message_data.receive_buffer[i];
-		}
-		else if(i >= 2 && i <= 5){
-			char temp_strenght[i] = *message_data.receive_buffer[i];
-		}
-		else if(i < 5){
-			char temp_state = *message_data.receive_buffer[i];
-		}
+	strncpy(temp_angle, servo_values.receive_buffer, 3);
+	strncpy(temp_strenght, servo_values.receive_buffer+3, 3);
+
+
+	servo_values.direction = atoi(temp_angle);
+	servo_values.strenght = atoi(temp_strenght);
+	servo_values.state = atoi(servo_values.receive_buffer[6]);
+
+}
+
+void convert_processed_joystick_data(){
+	bool forward = false;
+
+	if((servo_values.direction < 360) && (servo_values.direction > 179)){
+		servo_values.stearing_angle = map(servo_values.direction,180,359,0,255);			//The high number eqauls the right on the joystick
+		forward = false;
 	}
 
-	*message_data.angle = atoi(temp_angle);
-	*message_data.strenght = atoi(temp_strenght);
-	*message_data.state = atoi(temp_state);
+	if((servo_values.direction < 179) && (servo_values.direction > 0)){
+		servo_values.stearing_angle = map(servo_values.direction,178,0,0,255);
+		forward = true;
+	}
 
+	if(forward){
+		servo_values.speed = map(servo_values.strenght,0,100,122,244);
+	}
+	else{
+		servo_values.speed = map(servo_values.strenght,0,100,122,0);
 	}
 }
+
+void Set_Target_Mini_SSC(uint8_t channel_address, uint8_t target){
+	putchar(0xFF);
+	putchar(channel_address);
+	putchar(target);
+
+}
+
+/*void constrain_and_remap_data(message_struct *servo_values, servo_struct *servo_values){
+	servo_values
+
+
+	servo_values.speed = map();
+	servo_values.stearing_angle();
+}*/
