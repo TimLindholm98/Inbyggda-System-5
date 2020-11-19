@@ -64,12 +64,12 @@ void convert_processed_joystick_data(){
 
 	if((servo_values.direction < 360) && (servo_values.direction > 179)){
 		servo_values.stearing_angle = map(servo_values.direction,359,180,0,255);
-		//forward = false;
+		//
 	}
 
 	if((servo_values.direction < 179) && (servo_values.direction > 0)){
 		servo_values.stearing_angle = map(servo_values.direction,0,178,0,255);
-		//forward = true;
+		//forward
 	}
 
 	servo_values.speed = map(servo_values.strenght,0,100,22,100);
